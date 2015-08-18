@@ -186,8 +186,12 @@ var OmgangListComponent = React.createClass({
         <h2 className="commentAuthor">
         {date}
       </h2>
+	<div>
 	Vinnare: {this.props.data.get("vinnare")}
-      Spel: {this.props.data.get('spel')}
+      </div>
+	<div>
+	Spel: {this.props.data.get('spel')}
+      </div>
         </div>      
     );
   }
