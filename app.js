@@ -39,9 +39,10 @@ var NewSpelareForm = React.createClass({
     return (
         <div>
         <form onSubmit= {this.handleSubmit}>
-        <label htmlFor="namn">Namn</label>
         <input ref="namnField" name='namn' type="text" value={this.state.namn} onChange={this.handleChange}/>
+	<div>
 	<button type="submit">Lägg till</button>
+	</div>
         </form>
         </div>
     );
@@ -91,20 +92,29 @@ var NewOmgangForm = React.createClass({
           <option value={spelet.get('namn')}>{spelet.get('namn')}</option>
       );
     });
+    var inputStyle = {
+      display: "inline-block"
+    };
     return (
         <div>
         <form onSubmit= {this.handleSubmit}>
+	<div style={inputStyle}>
 	<label htmlFor="spel">Spel</label>
         <select ref="spelField" name='spel' value={this.state.spel} onChange={this.handleChange}>
 	<option value=''></option>
         {spel}
       </select>
+	</div>
+	<div style={inputStyle}>
         <label htmlFor="vinnare">Vinnare</label>
         <select ref="vinnareField" name='vinnare' value={this.state.vinnare} onChange={this.handleChange}>
 	<option value=''></option>
 	{spelare}
-	</select>
+      </select>
+	</div>
+	<div>
         <button type="submit">Lägg till</button>
+	</div>
         </form>
         </div>
     );
@@ -137,9 +147,10 @@ var NewSpelForm = React.createClass({
     return (
         <div>
         <form onSubmit= {this.handleSubmit}>
-        <label htmlFor="namn">Spel</label>
         <input ref="namnField" name='namn' type="text" value={this.state.namn} onChange={this.handleChange}/>
+	<div>
         <button type="submit">Lägg till</button>
+	</div>
         </form>
         </div>
     );
@@ -233,8 +244,9 @@ var SpelarePage = React.createClass({
   render: function() {
     return (
         <div>
-	<SpelareList data={this.state.data} />
+	<h1>Spelare</h1>
         <NewSpelareForm parentUpdate={this.loadSpelareFromServer}/>
+	<SpelareList data={this.state.data} />
         </div>
     );
   }
@@ -262,8 +274,9 @@ var SpelPage = React.createClass({
   render: function() {
     return (
         <div>
+	<h1>Spel</h1>
+	<NewSpelForm parentUpdate={this.loadSpelFromServer}/>
         <SpelareList data={this.state.data} />
-        <NewSpelForm parentUpdate={this.loadSpelFromServer}/>
         </div>
     );
   }
