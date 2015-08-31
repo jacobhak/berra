@@ -177,7 +177,7 @@ var OmgangList = React.createClass({
       return (
           <OmgangListComponent data={omgang}/>
       );
-    });
+    }).reverse();
     return (
         <div className="commentList">
         {nodes}
