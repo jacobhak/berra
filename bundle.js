@@ -1,5 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-/*global Parse, ReactRouter, md5*/
+/*global Parse, md5*/
 
 Parse.initialize("AqnO6aCXC4jn8MNWxxY3sLeb4eQEgDfQbRZzeDO6", "54LZ0uAgocsC5cvXkVjtKTeybPPIqUzp4nzgBkIv");
 
@@ -213,7 +213,13 @@ var SpelareList = React.createClass({
   displayName: "SpelareList",
 
   render: function () {
-    var nodes = this.props.data.map(function (spelare) {
+    console.log("spelarelist");
+    console.log(this.props.data);
+    var sorted = this.props.data.slice().sort(function (a, b) {
+      return b.vinster - a.vinster;
+    });
+    console.log(sorted);
+    var nodes = sorted.map(function (spelare) {
       return React.createElement(SpelareComponent, { data: spelare });
     });
     return React.createElement(
@@ -229,7 +235,7 @@ var SpelList = React.createClass({
 
   render: function () {
     var nodes = this.props.data.map(function (spelare) {
-      return React.createElement(SpelareComponent, { data: spelare });
+      return React.createElement(SpelComponent, { data: spelare });
     });
     return React.createElement(
       "div",
@@ -296,6 +302,24 @@ var SpelareComponent = React.createClass({
       React.createElement(
         "h2",
         { className: "commentAuthor" },
+        this.props.data["spelare"],
+        ": ",
+        this.props.data["vinster"]
+      )
+    );
+  }
+});
+
+var SpelComponent = React.createClass({
+  displayName: "SpelComponent",
+
+  render: function () {
+    return React.createElement(
+      "div",
+      { className: "comment" },
+      React.createElement(
+        "h2",
+        { className: "commentAuthor" },
         this.props.data.get("namn")
       )
     );
@@ -310,10 +334,11 @@ var SpelarePage = React.createClass({
   },
   loadSpelareFromServer: function () {
     var query = new Parse.Query(Spelare);
-    query.find({
+    var coll = query.collection();
+    coll.fetch({
       success: (function (spelare) {
         this.setState({ spelare: spelare });
-        console.log(this.state.data);
+        console.log(this.state);
       }).bind(this),
       error: (function (object, error) {
         console.log(error);
@@ -322,10 +347,11 @@ var SpelarePage = React.createClass({
   },
   loadOmgangarFromServer: function () {
     var query = new Parse.Query(Omgang);
-    query.find({
+    var coll = query.collection();
+    coll.fetch({
       success: (function (omgang) {
         this.setState({ omgangar: omgang });
-        console.log(this.state.data);
+        console.log(this.state);
       }).bind(this),
       error: (function (object, error) {
         console.log(error);
@@ -346,7 +372,7 @@ var SpelarePage = React.createClass({
         "Spelare"
       ),
       React.createElement(NewSpelareForm, { parentUpdate: this.loadSpelareFromServer }),
-      React.createElement(SpelareList, { data: this.state.spelare })
+      React.createElement(SpelareList, { data: utils.spelareToVinster(this.state.spelare, this.state.omgangar) })
     );
   }
 });
@@ -23969,16 +23995,15 @@ var utils = module.exports;
 
 utils.vinsterForSpelare = function (spelare, omgangar) {
   return omgangar.filter(function (a) {
-    return a['vinnare'] == spelare;
+    var result = a.get('vinnare') === spelare;
+    return result;
   }).length;
 };
 
 utils.spelareToVinster = function (spelare, omgangar) {
-  var result = {};
-  spelare.forEach(function (s) {
-    result[s] = utils.vinsterForSpelare(s, omgangar);
+  return spelare.map(function (s) {
+    return { "spelare": s.get('namn'), "vinster": utils.vinsterForSpelare(s.get('namn'), omgangar) };
   });
-  return result;
 };
 
 },{}]},{},[1]);

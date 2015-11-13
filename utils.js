@@ -2,16 +2,14 @@ var utils = module.exports;
 
 utils.vinsterForSpelare = function(spelare, omgangar) {
   return omgangar.filter(function(a) {
-    return a['vinnare'] == spelare;
+    return a.get('vinnare') === spelare;
   }).length;
 };
 
 utils.spelareToVinster = function(spelare, omgangar) {
-  var result = {};
-  spelare.forEach(function(s) {
-    result[s] = utils.vinsterForSpelare(s, omgangar);
+  return spelare.map(function(s) {
+    return {"spelare": s.get('namn'), "vinster": utils.vinsterForSpelare(s.get('namn'), omgangar)};
   });
-  return result;
 };
 
 

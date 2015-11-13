@@ -15,9 +15,6 @@ var Spelare = Parse.Object.extend('Spelare');
 var Spel = Parse.Object.extend('Spel');
 var Omgang = Parse.Object.extend('Omgang');
 
-
-
-
 var NewSpelareForm = React.createClass({
   getInitialState : function() {
     return {namn: ''};
@@ -54,8 +51,6 @@ var NewSpelareForm = React.createClass({
     );
   }
 });
-
-
 
 var NewOmgangForm = React.createClass({
   getInitialState : function() {
@@ -165,7 +160,10 @@ var NewSpelForm = React.createClass({
 
 var SpelareList = React.createClass({
   render: function() {
-    var nodes = this.props.data.map(function(spelare) {
+    var sorted = this.props.data.slice().sort(function(a, b) {
+      return b.vinster - a.vinster;
+    });
+    var nodes = sorted.map(function(spelare) {
       return (
           <SpelareComponent data={spelare}/>
       );
@@ -182,7 +180,7 @@ var SpelList = React.createClass({
   render: function() {
     var nodes = this.props.data.map(function(spelare) {
       return (
-          <SpelareComponent data={spelare}/>
+          <SpelComponent data={spelare}/>
       );
     });
     return (
@@ -235,9 +233,21 @@ var SpelareComponent = React.createClass({
     return (
         <div className="comment">
         <h2 className="commentAuthor">
-        {this.props.data.get("namn")}
+        {this.props.data["spelare"]}: {this.props.data["vinster"]}
       </h2>
 	</div>
+    );
+  }
+});
+
+var SpelComponent = React.createClass({
+  render: function() {
+    return (
+        <div className="comment">
+        <h2 className="commentAuthor">
+        {this.props.data.get("namn")}
+      </h2>
+        </div>
     );
   }
 });
@@ -249,10 +259,11 @@ var SpelarePage = React.createClass({
   },
   loadSpelareFromServer: function() {
     var query = new Parse.Query(Spelare);
-    query.find({
+    var coll = query.collection();
+    coll.fetch({
       success: function (spelare) {
         this.setState({spelare: spelare});
-        console.log(this.state.data);
+        console.log(this.state);
       }.bind(this),
       error: function (object, error) {
         console.log(error);
@@ -261,10 +272,11 @@ var SpelarePage = React.createClass({
   },
   loadOmgangarFromServer: function() {
     var query = new Parse.Query(Omgang);
-    query.find({
+    var coll = query.collection();
+    coll.fetch({
       success: function (omgang) {
         this.setState({omgangar: omgang});
-        console.log(this.state.data);
+        console.log(this.state);
       }.bind(this),
       error: function (object, error) {
         console.log(error);
@@ -280,7 +292,7 @@ var SpelarePage = React.createClass({
         <div>
 	<h1>Spelare</h1>
         <NewSpelareForm parentUpdate={this.loadSpelareFromServer}/>
-	<SpelareList data={this.state.spelare} />
+	<SpelareList data={utils.spelareToVinster(this.state.spelare, this.state.omgangar)} />
         </div>
     );
   }
