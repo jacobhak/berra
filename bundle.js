@@ -7,10 +7,9 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var Router = require('react-router').Router;
 var utils = require('./utils.js');
-var DefaultRoute = require('react-router').DefaultRoute;
+var IndexRoute = require('react-router').IndexRoute;
 var Link = require('react-router').Link;
 var Route = require('react-router').Route;
-var RouteHandler = require('react-router').RouteHandler;
 
 var Spelare = Parse.Object.extend('Spelare');
 var Spel = Parse.Object.extend('Spel');
@@ -213,12 +212,9 @@ var SpelareList = React.createClass({
   displayName: "SpelareList",
 
   render: function () {
-    console.log("spelarelist");
-    console.log(this.props.data);
     var sorted = this.props.data.slice().sort(function (a, b) {
       return b.vinster - a.vinster;
     });
-    console.log(sorted);
     var nodes = sorted.map(function (spelare) {
       return React.createElement(SpelareComponent, { data: spelare });
     });
@@ -535,6 +531,7 @@ var routes = React.createElement(
   React.createElement(
     Route,
     { component: App, path: "/" },
+    React.createElement(IndexRoute, { component: OmgangPage }),
     React.createElement(Route, { name: "spel", component: SpelPage, path: "spel" }),
     React.createElement(Route, { name: "spelare", component: SpelarePage, path: "spelare" }),
     React.createElement(Route, { name: "omgang", component: OmgangPage, path: "omgang" })
@@ -23995,8 +23992,7 @@ var utils = module.exports;
 
 utils.vinsterForSpelare = function (spelare, omgangar) {
   return omgangar.filter(function (a) {
-    var result = a.get('vinnare') === spelare;
-    return result;
+    return a.get('vinnare') === spelare;
   }).length;
 };
 

@@ -6,10 +6,9 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var Router = require('react-router').Router;
 var utils = require('./utils.js');
-var DefaultRoute = require('react-router').DefaultRoute;
+var IndexRoute = require('react-router').IndexRoute;
 var Link = require('react-router').Link;
 var Route = require('react-router').Route;
-var RouteHandler = require('react-router').RouteHandler;
 
 var Spelare = Parse.Object.extend('Spelare');
 var Spel = Parse.Object.extend('Spel');
@@ -412,7 +411,7 @@ var App = React.createClass({
 var routes = (
   <Router>
     <Route component={App} path="/">
-    
+    <IndexRoute component={OmgangPage}/>
     <Route name="spel" component={SpelPage} path="spel"></Route>
     <Route name="spelare" component={SpelarePage} path="spelare"></Route>
     <Route name="omgang" component={OmgangPage} path="omgang"></Route>
