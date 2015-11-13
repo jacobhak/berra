@@ -1,16 +1,22 @@
-/*global Parse, ReactRouter, React, md5*/
+/*global Parse, md5*/
 
 Parse.initialize("AqnO6aCXC4jn8MNWxxY3sLeb4eQEgDfQbRZzeDO6", "54LZ0uAgocsC5cvXkVjtKTeybPPIqUzp4nzgBkIv");
 
-var Router = ReactRouter;
-var DefaultRoute = Router.DefaultRoute;
-var Link = Router.Link;
-var Route = Router.Route;
-var RouteHandler = Router.RouteHandler;
+var React = require('react');
+var ReactDOM = require('react-dom');
+var Router = require('react-router').Router;
+var utils = require('./utils.js');
+var DefaultRoute = require('react-router').DefaultRoute;
+var Link = require('react-router').Link;
+var Route = require('react-router').Route;
+var RouteHandler = require('react-router').RouteHandler;
 
 var Spelare = Parse.Object.extend('Spelare');
 var Spel = Parse.Object.extend('Spel');
 var Omgang = Parse.Object.extend('Omgang');
+
+
+
 
 var NewSpelareForm = React.createClass({
   getInitialState : function() {
@@ -38,7 +44,7 @@ var NewSpelareForm = React.createClass({
   render: function() {
     return (
         <div>
-        <form onSubmit= {this.handleSubmit}>
+        <form onSubmit={this.handleSubmit}>
         <input ref="namnField" name='namn' type="text" value={this.state.namn} onChange={this.handleChange}/>
 	<div>
 	<button type="submit">Lägg till</button>
@@ -171,6 +177,22 @@ var SpelareList = React.createClass({
     );
   }
 });
+
+var SpelList = React.createClass({
+  render: function() {
+    var nodes = this.props.data.map(function(spelare) {
+      return (
+          <SpelareComponent data={spelare}/>
+      );
+    });
+    return (
+        <div className="commentList">
+        {nodes}
+      </div>
+    );
+  }
+});
+
 var OmgangList = React.createClass({
   render: function() {
     var nodes = this.props.data.map(function(omgang) {
@@ -221,16 +243,27 @@ var SpelareComponent = React.createClass({
 });
 
 
-
 var SpelarePage = React.createClass({
   getInitialState: function() {
-    return {data: []};
+    return {spelare: [], omgangar: []};
   },
   loadSpelareFromServer: function() {
     var query = new Parse.Query(Spelare);
     query.find({
       success: function (spelare) {
-        this.setState({data: spelare});
+        this.setState({spelare: spelare});
+        console.log(this.state.data);
+      }.bind(this),
+      error: function (object, error) {
+        console.log(error);
+      }.bind(this)
+    });
+  },
+  loadOmgangarFromServer: function() {
+    var query = new Parse.Query(Omgang);
+    query.find({
+      success: function (omgang) {
+        this.setState({omgangar: omgang});
         console.log(this.state.data);
       }.bind(this),
       error: function (object, error) {
@@ -240,13 +273,14 @@ var SpelarePage = React.createClass({
   },
   componentDidMount: function() {
     this.loadSpelareFromServer();
+    this.loadOmgangarFromServer();
   },
   render: function() {
     return (
         <div>
 	<h1>Spelare</h1>
         <NewSpelareForm parentUpdate={this.loadSpelareFromServer}/>
-	<SpelareList data={this.state.data} />
+	<SpelareList data={this.state.spelare} />
         </div>
     );
   }
@@ -276,7 +310,7 @@ var SpelPage = React.createClass({
         <div>
 	<h1>Spel</h1>
 	<NewSpelForm parentUpdate={this.loadSpelFromServer}/>
-        <SpelareList data={this.state.data} />
+        <SpelList data={this.state.data} />
         </div>
     );
   }
@@ -356,7 +390,7 @@ var App = React.createClass({
 	<li style={ulStyle}><Link to="spel">Spel</Link></li>
 	</ul>
 	</div>
-        <RouteHandler />
+	{this.props.children}
         </div>
       );
   }
@@ -364,16 +398,17 @@ var App = React.createClass({
 
 
 var routes = (
-    <Route handler={App} path="/">
-    <DefaultRoute handler={OmgangPage} />
-    <Route name="spel" handler={SpelPage} path="spel"></Route>
-    <Route name="spelare" handler={SpelarePage} path="spelare"></Route>
-    <Route name="omgang" handler={OmgangPage} path="omgang"></Route>
+  <Router>
+    <Route component={App} path="/">
+    
+    <Route name="spel" component={SpelPage} path="spel"></Route>
+    <Route name="spelare" component={SpelarePage} path="spelare"></Route>
+    <Route name="omgang" component={OmgangPage} path="omgang"></Route>
     </Route>
+    </Router>
 );
 
-Router.run(routes, function (Handler) {
-  React.render(
-      <Handler />, document.getElementById('main')
-  );
-});
+ReactDOM.render(
+  routes, document.getElementById('main')
+);
+
